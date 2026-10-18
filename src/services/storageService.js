@@ -145,12 +145,76 @@ export const SEED_PRODUCTOS = [
   }
 ];
 
+export const SEED_CATEGORIAS = [
+  "Procesadores",
+  "Tarjetas Gráficas",
+  "Memorias RAM",
+  "Placas Madre",
+  "Almacenamiento",
+  "Fuentes de Poder",
+  "Gabinetes",
+  "Refrigeración"
+];
+
+export const SEED_ORDENES = [
+  {
+    numeroBoleta: 20261017,
+    codigoOrden: "ORD-94821",
+    fecha: "17 de octubre de 2026, 18:30",
+    cliente: {
+      nombre: "Pedro",
+      apellidos: "Hacker",
+      correo: "pedro.hacker20@example.com"
+    },
+    despacho: {
+      calle: "Los crisantemos, Edificio Norte",
+      depto: "Depto 603",
+      region: "Región Metropolitana",
+      comuna: "Cerrillos",
+      indicaciones: "Dejar en conserjería."
+    },
+    items: [
+      { id: "PROD-001", nombre: "Procesador AMD Ryzen 5 5500", precio: 110000, cantidad: 1, imagenUrl: "/assets/images/cpu/Procesador AMD Ryzen 5 5500.jpg" },
+      { id: "PROD-007", nombre: "Tarjeta Gráfica ASUS TUF Gaming GeForce RTX 4070 SUPER", precio: 720000, cantidad: 1, imagenUrl: "/assets/images/gpu/Tarjeta Grafica ASUS TUF Gaming GeForce RTX 4070 SUPER 12GB.jpg" }
+    ],
+    total: 830000,
+    metodoPago: "webpay",
+    estado: "Pagado",
+    usuarioId: "usr-002"
+  },
+  {
+    numeroBoleta: 20261016,
+    codigoOrden: "ORD-73190",
+    fecha: "16 de octubre de 2026, 14:15",
+    cliente: {
+      nombre: "María",
+      apellidos: "González",
+      correo: "maria.gonzalez@example.com"
+    },
+    despacho: {
+      calle: "Av. Providencia 1240",
+      depto: "Oficina 402",
+      region: "Región Metropolitana",
+      comuna: "Providencia",
+      indicaciones: "Horario de oficina 9 a 18 hrs."
+    },
+    items: [
+      { id: "PROD-008", nombre: "Tarjeta Gráfica Gigabyte GeForce RTX 4060 EAGLE OC", precio: 360000, cantidad: 1, imagenUrl: "/assets/images/gpu/Tarjeta Grafica Gigabyte GeForce RTX 4060 EAGLE OC 8G.jpg" }
+    ],
+    total: 360000,
+    metodoPago: "transferencia",
+    estado: "En Preparación",
+    usuarioId: "usr-003"
+  }
+];
+
 const KEYS = {
   PRODUCTOS: "nexus_productos",
   USUARIOS: "nexus_usuarios",
   CARRITO: "nexus_carrito",
   SESION: "nexus_sesion",
-  ORDENES: "nexus_ordenes"
+  ORDENES: "nexus_ordenes",
+  CATEGORIAS: "nexus_categorias"
 };
 
 // Safe LocalStorage helpers (Soporta navegadores y entornos de test unitario como Node/Vitest/Jasmine)
@@ -192,6 +256,16 @@ export const initStorage = () => {
   const currentUsers = getStorageItem(KEYS.USUARIOS, null);
   if (!currentUsers || currentUsers.length === 0) {
     setStorageItem(KEYS.USUARIOS, [SEED_ADMIN]);
+  }
+
+  const currentCategories = getStorageItem(KEYS.CATEGORIAS, null);
+  if (!currentCategories || currentCategories.length === 0) {
+    setStorageItem(KEYS.CATEGORIAS, SEED_CATEGORIAS);
+  }
+
+  const currentOrders = getStorageItem(KEYS.ORDENES, null);
+  if (!currentOrders || currentOrders.length === 0) {
+    setStorageItem(KEYS.ORDENES, SEED_ORDENES);
   }
 };
 
@@ -242,6 +316,32 @@ export const deleteProducto = (id) => {
   return filtrados;
 };
 
+// ================= CRUD DE CATEGORÍAS =================
+export const getCategorias = () => {
+  initStorage();
+  const custom = getStorageItem(KEYS.CATEGORIAS, SEED_CATEGORIAS);
+  const prods = getProductos();
+  const fromProds = prods.map((p) => p.categoria).filter(Boolean);
+  return Array.from(new Set([...custom, ...fromProds]));
+};
+
+export const createCategoria = (nombre) => {
+  if (!nombre || !nombre.trim()) return null;
+  const nombreLimpio = nombre.trim();
+  const current = getCategorias();
+  if (!current.includes(nombreLimpio)) {
+    current.push(nombreLimpio);
+    setStorageItem(KEYS.CATEGORIAS, current);
+  }
+  return current;
+};
+
+export const deleteCategoria = (nombre) => {
+  const current = getCategorias().filter((c) => c !== nombre);
+  setStorageItem(KEYS.CATEGORIAS, current);
+  return current;
+};
+
 // ================= CARRITO =================
 export const getCarrito = () => {
   return getStorageItem(KEYS.CARRITO, []);
@@ -288,7 +388,6 @@ export const deleteUsuario = (id) => {
   return filtrados;
 };
 
-
 export const getSesionActual = () => {
   return getStorageItem(KEYS.SESION, null);
 };
@@ -298,21 +397,51 @@ export const setSesionActual = (usuario) => {
 };
 
 export const clearSesionActual = () => {
-  if (typeof window !== "undefined" && window.localStorage) {
-    window.localStorage.removeItem(KEYS.SESION);
+  const storage = getLocalStorageInstance();
+  if (storage) {
+    storage.removeItem(KEYS.SESION);
   }
 };
 
 // ================= ÓRDENES / CHECKOUT =================
 export const getOrdenes = () => {
-  return getStorageItem(KEYS.ORDENES, []);
+  initStorage();
+  return getStorageItem(KEYS.ORDENES, SEED_ORDENES);
 };
 
 export const saveOrden = (orden) => {
   const ordenes = getOrdenes();
-  ordenes.unshift(orden);
+  const ordenConEstado = {
+    estado: "Pagado",
+    ...orden
+  };
+  ordenes.unshift(ordenConEstado);
   setStorageItem(KEYS.ORDENES, ordenes);
-  return orden;
+  return ordenConEstado;
+};
+
+export const updateOrden = (codigoOrden, datosActualizados) => {
+  const ordenes = getOrdenes();
+  const index = ordenes.findIndex(
+    (o) => String(o.codigoOrden) === String(codigoOrden) || String(o.numeroBoleta) === String(codigoOrden)
+  );
+  if (index === -1) return null;
+
+  ordenes[index] = {
+    ...ordenes[index],
+    ...datosActualizados
+  };
+  setStorageItem(KEYS.ORDENES, ordenes);
+  return ordenes[index];
+};
+
+export const deleteOrden = (codigoOrden) => {
+  const ordenes = getOrdenes();
+  const filtradas = ordenes.filter(
+    (o) => String(o.codigoOrden) !== String(codigoOrden) && String(o.numeroBoleta) !== String(codigoOrden)
+  );
+  setStorageItem(KEYS.ORDENES, filtradas);
+  return filtradas;
 };
 
 export const descontarStockDeOrden = (items) => {
@@ -326,4 +455,5 @@ export const descontarStockDeOrden = (items) => {
   setStorageItem(KEYS.PRODUCTOS, productos);
   return productos;
 };
+
 

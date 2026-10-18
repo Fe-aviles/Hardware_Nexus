@@ -24,6 +24,9 @@ import { CheckoutView } from "./views/CheckoutView";
 import { PaymentSuccessView } from "./views/PaymentSuccessView";
 import { PaymentFailedView } from "./views/PaymentFailedView";
 
+// Vista de Panel Administrativo (Hito 2)
+import { AdminPortalView } from "./views/AdminPortalView";
+
 const ToastContainer = () => {
   const { notification } = useCart();
   if (!notification) return null;
@@ -63,15 +66,8 @@ export const App = () => {
                 <Route path="/pago-exitoso" element={<PaymentSuccessView />} />
                 <Route path="/pago-fallido" element={<PaymentFailedView />} />
 
-                <Route
-                  path="/admin"
-                  element={
-                    <PlaceholderView
-                      title="Panel de Administración"
-                      description="Dashboard con métricas, gestión CRUD de catálogo, inventario crítico y revisión de órdenes."
-                    />
-                  }
-                />
+                {/* Ruta de Administración - Hito 2 */}
+                <Route path="/admin" element={<AdminPortalView />} />
                 <Route
                   path="*"
                   element={
