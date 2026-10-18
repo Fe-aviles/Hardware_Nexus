@@ -1,122 +1,104 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import React from "react";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { CartProvider, useCart } from "./context/CartContext";
+import { AuthProvider } from "./context/AuthContext";
+import { Navbar } from "./components/Navbar";
+import { Footer } from "./components/Footer";
 
-function App() {
-  const [count, setCount] = useState(0)
+// Vistas Desarrolladas (Parte 1)
+import { HomeView } from "./views/HomeView";
+import { CategoriesView } from "./views/CategoriesView";
+import { OffersView } from "./views/OffersView";
+import { ProductDetailView } from "./views/ProductDetailView";
+import { CartView } from "./views/CartView";
+import { ContactView } from "./views/ContactView";
+import { PlaceholderView } from "./views/PlaceholderView";
+
+const ToastContainer = () => {
+  const { notification } = useCart();
+  if (!notification) return null;
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div className="nexus-toast" role="alert">
+      <i className="bi bi-check-circle-fill text-success fs-5"></i>
+      <span className="small fw-semibold">{notification.message}</span>
+    </div>
+  );
+};
 
-      <div className="ticks"></div>
+export const App = () => {
+  return (
+    <AuthProvider>
+      <CartProvider>
+        <BrowserRouter>
+          <div className="d-flex flex-column min-vh-100 bg-main">
+            <Navbar />
+            <main className="flex-grow-1">
+              <Routes>
+                {/* Vistas Core de Parte 1 */}
+                <Route path="/" element={<HomeView />} />
+                <Route path="/categorias" element={<CategoriesView />} />
+                <Route path="/ofertas" element={<OffersView />} />
+                <Route path="/producto/:id" element={<ProductDetailView />} />
+                <Route path="/carrito" element={<CartView />} />
+                <Route path="/contacto" element={<ContactView />} />
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+                {/* Rutas delegadas a Parte 2 (Compañero) */}
+                <Route
+                  path="/login"
+                  element={
+                    <PlaceholderView
+                      title="Inicio de Sesión"
+                      description="Módulo de autenticación de clientes y administradores con validaciones de credenciales."
+                    />
+                  }
+                />
+                <Route
+                  path="/registro"
+                  element={
+                    <PlaceholderView
+                      title="Registro de Usuarios"
+                      description="Formulario para la creación de nuevas cuentas de cliente con validaciones de contraseña y correo."
+                    />
+                  }
+                />
+                <Route
+                  path="/checkout"
+                  element={
+                    <PlaceholderView
+                      title="Paso de Pago / Checkout"
+                      description="Formulario de despacho con selección de región/comuna y selección de método de pago."
+                    />
+                  }
+                />
+                <Route
+                  path="/admin"
+                  element={
+                    <PlaceholderView
+                      title="Panel de Administración"
+                      description="Dashboard con métricas, gestión CRUD de catálogo, inventario crítico y revisión de órdenes."
+                    />
+                  }
+                />
+                <Route
+                  path="*"
+                  element={
+                    <PlaceholderView
+                      title="Página no encontrada"
+                      description="La ruta especificada no existe en la tienda virtual."
+                      badge="Error 404"
+                    />
+                  }
+                />
+              </Routes>
+            </main>
+            <Footer />
+            <ToastContainer />
+          </div>
+        </BrowserRouter>
+      </CartProvider>
+    </AuthProvider>
+  );
+};
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
-}
-
-export default App
+export default App;
