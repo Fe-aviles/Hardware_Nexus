@@ -38,41 +38,45 @@ export const ContactView = () => {
               <form onSubmit={handleSubmit}>
                 <div className="row g-3">
                   <div className="col-12 col-md-6">
-                    <label className="form-label text-muted small">Nombre Completo *</label>
+                    <label className="form-label text-light small fw-semibold">Nombre Completo *</label>
                     <input
                       type="text"
                       className="form-control bg-dark text-light border-secondary"
                       required
+                      placeholder="Tu nombre completo"
                       value={formData.nombre}
                       onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
                     />
                   </div>
                   <div className="col-12 col-md-6">
-                    <label className="form-label text-muted small">Correo Electrónico *</label>
+                    <label className="form-label text-light small fw-semibold">Correo Electrónico *</label>
                     <input
                       type="email"
                       className="form-control bg-dark text-light border-secondary"
                       required
+                      placeholder="ejemplo@correo.com"
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                     />
                   </div>
                   <div className="col-12">
-                    <label className="form-label text-muted small">Asunto / Consulta</label>
+                    <label className="form-label text-light small fw-semibold">Asunto / Consulta *</label>
                     <input
                       type="text"
                       className="form-control bg-dark text-light border-secondary"
                       required
+                      placeholder="Motivo del contacto"
                       value={formData.asunto}
                       onChange={(e) => setFormData({ ...formData, asunto: e.target.value })}
                     />
                   </div>
                   <div className="col-12">
-                    <label className="form-label text-muted small">Mensaje</label>
+                    <label className="form-label text-light small fw-semibold">Mensaje *</label>
                     <textarea
                       rows="4"
                       className="form-control bg-dark text-light border-secondary"
                       required
+                      placeholder="Escribe tu consulta detallada aquí..."
                       value={formData.mensaje}
                       onChange={(e) => setFormData({ ...formData, mensaje: e.target.value })}
                     ></textarea>

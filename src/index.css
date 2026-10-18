@@ -292,3 +292,98 @@ main {
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
+
+/* ==========================================================================
+   4. MEJORAS DE CONTRASTE Y VISIBILIDAD DE TEXTOS Y FORMULARIOS (DARK THEME)
+   ========================================================================== */
+
+/* Placeholders de alta visibilidad para inputs */
+::placeholder {
+  color: #94a3b8 !important;
+  opacity: 1 !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #94a3b8 !important;
+  opacity: 1 !important;
+}
+
+/* Estilos de input en tema oscuro */
+.form-control.bg-dark,
+.form-select.bg-dark {
+  background-color: #0b1120 !important;
+  color: #f8fafc !important;
+  border-color: #475569 !important;
+}
+
+.form-control.bg-dark:focus,
+.form-select.bg-dark:focus {
+  background-color: #0f172a !important;
+  color: #ffffff !important;
+  border-color: var(--primary-light) !important;
+  box-shadow: 0 0 0 0.25rem rgba(124, 58, 237, 0.25) !important;
+}
+
+/* Enlaces y textos del Footer con contraste nítido */
+footer.bg-dark {
+  background-color: #0b0f19 !important;
+  border-top-color: #334155 !important;
+}
+
+footer a.footer-link {
+  color: #cbd5e1 !important;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+footer a.footer-link:hover {
+  color: #38bdf8 !important;
+}
+
+footer .footer-text-secondary {
+  color: #cbd5e1 !important;
+}
+
+/* Breadcrumbs con alta visibilidad */
+.breadcrumb .breadcrumb-item a {
+  color: #93c5fd !important;
+  font-weight: 500;
+}
+
+.breadcrumb .breadcrumb-item a:hover {
+  color: #60a5fa !important;
+  text-decoration: underline !important;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+  color: #94a3b8 !important;
+}
+
+/* Badges y tarjetas de especificaciones técnicas legibles */
+.badge-nexus-id {
+  background-color: #0b1120 !important;
+  color: #38bdf8 !important;
+  border: 1px solid #334155 !important;
+  font-weight: 600 !important;
+}
+
+.specs-container {
+  background-color: #0b1120 !important;
+  border: 1px solid #334155 !important;
+  color: #e2e8f0 !important;
+  font-weight: 500 !important;
+  line-height: 1.7;
+}
+
+/* Botones de acción en Navbar perfectamente alineados */
+.btn-nav-action {
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+

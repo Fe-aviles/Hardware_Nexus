@@ -117,6 +117,7 @@ export const LoginView = () => {
                     value={formData.correo}
                     onChange={handleChange}
                     data-testid="login-email"
+                    style={{ backgroundColor: "#0b1120", color: "#ffffff" }}
                     required
                   />
                 </div>
@@ -141,6 +142,7 @@ export const LoginView = () => {
                     value={formData.password}
                     onChange={handleChange}
                     data-testid="login-password"
+                    style={{ backgroundColor: "#0b1120", color: "#ffffff" }}
                     required
                   />
                 </div>

@@ -59,9 +59,9 @@ export const ProductDetailView = () => {
     <div className="container py-5">
       <nav aria-label="breadcrumb" className="mb-4">
         <ol className="breadcrumb small">
-          <li className="breadcrumb-item"><Link to="/" className="text-muted text-decoration-none">Inicio</Link></li>
-          <li className="breadcrumb-item"><Link to={`/categorias?cat=${categoria}`} className="text-muted text-decoration-none">{categoria}</Link></li>
-          <li className="breadcrumb-item active text-info" aria-current="page">{nombre}</li>
+          <li className="breadcrumb-item"><Link to="/" className="text-decoration-none">Inicio</Link></li>
+          <li className="breadcrumb-item"><Link to={`/categorias?cat=${categoria}`} className="text-decoration-none">{categoria}</Link></li>
+          <li className="breadcrumb-item active text-info fw-bold" aria-current="page">{nombre}</li>
         </ol>
       </nav>
 
@@ -85,9 +85,9 @@ export const ProductDetailView = () => {
 
         {/* Ficha de Detalles y Compra */}
         <div className="col-12 col-md-6 d-flex flex-column">
-          <div className="mb-2">
-            <span className="badge bg-secondary me-2">{categoria}</span>
-            <span className="badge bg-dark border border-secondary text-muted">ID: {product.id}</span>
+          <div className="mb-2 d-flex gap-2 align-items-center">
+            <span className="badge bg-secondary">{categoria}</span>
+            <span className="badge badge-nexus-id px-2 py-1">ID: {product.id}</span>
           </div>
 
           <h2 className="fw-bold text-light mb-3">{nombre}</h2>
@@ -183,7 +183,8 @@ export const ProductDetailView = () => {
           {/* Especificaciones Técnicas */}
           <div className="mt-auto">
             <h6 className="fw-bold text-info text-uppercase small mb-2">Especificaciones Técnicas:</h6>
-            <div className="card bg-dark border-secondary p-3 small text-muted">
+            <div className="specs-container p-3 rounded-3 small">
+              <i className="bi bi-cpu me-2 text-info"></i>
               {especificaciones || "Consulte ficha del fabricante."}
             </div>
           </div>

@@ -43,59 +43,59 @@ export const Navbar = ({ onSearchChange }) => {
         {/* Contenido Navbar */}
         <div className="collapse navbar-collapse" id="navbarHardwareNexus">
           {/* Enlaces de Navegación */}
-          <ul className="navbar-nav me-auto mb-2 mb-lg-0">
+          <ul className="navbar-nav mb-2 mb-lg-0 align-items-lg-center">
             <li className="nav-item">
-              <NavLink className="nav-link px-3" to="/" end>
+              <NavLink className="nav-link px-2 px-xl-3" to="/" end>
                 <i className="bi bi-house-door me-1"></i> Home
               </NavLink>
             </li>
             <li className="nav-item">
-              <NavLink className="nav-link px-3" to="/categorias">
+              <NavLink className="nav-link px-2 px-xl-3" to="/categorias">
                 <i className="bi bi-grid me-1"></i> Categorías
               </NavLink>
             </li>
             <li className="nav-item">
-              <NavLink className="nav-link px-3" to="/ofertas">
+              <NavLink className="nav-link px-2 px-xl-3" to="/ofertas">
                 <i className="bi bi-tag-fill text-danger me-1"></i> Ofertas
               </NavLink>
             </li>
             <li className="nav-item">
-              <NavLink className="nav-link px-3" to="/contacto">
+              <NavLink className="nav-link px-2 px-xl-3" to="/contacto">
                 <i className="bi bi-envelope me-1"></i> Contacto
               </NavLink>
             </li>
             {isAdmin && (
               <li className="nav-item">
-                <NavLink className="nav-link px-3 text-warning fw-semibold" to="/admin">
+                <NavLink className="nav-link px-2 px-xl-3 text-warning fw-semibold" to="/admin">
                   <i className="bi bi-speedometer2 me-1"></i> Panel Admin
                 </NavLink>
               </li>
             )}
           </ul>
 
-          {/* Formulario de Búsqueda */}
-          <form className="d-flex my-2 my-lg-0 me-lg-3" onSubmit={handleSearchSubmit}>
-            <div className="input-group">
+          {/* Formulario de Búsqueda Extendido y Centrado entre Navegación y Carrito */}
+          <form className="d-flex flex-grow-1 mx-lg-4 my-2 my-lg-0" style={{ maxWidth: "480px" }} onSubmit={handleSearchSubmit}>
+            <div className="input-group w-100">
               <input
                 type="text"
                 className="form-control bg-dark text-light border-secondary"
-                placeholder="Buscar componentes..."
+                placeholder="Buscar procesadores, tarjetas gráficas..."
                 value={searchInput}
                 onChange={(e) => setSearchInput(e.target.value)}
                 aria-label="Buscar"
               />
-              <button className="btn btn-outline-info" type="submit">
+              <button className="btn btn-outline-info px-3" type="submit" title="Buscar">
                 <i className="bi bi-search"></i>
               </button>
             </div>
           </form>
 
           {/* Acciones de Usuario y Carrito */}
-          <div className="d-flex align-items-center gap-2 mt-2 mt-lg-0">
+          <div className="d-flex align-items-center gap-2 mt-2 mt-lg-0 ms-auto">
             {/* Botón Carrito */}
             <Link
               to="/carrito"
-              className="btn btn-success d-flex align-items-center gap-2 position-relative shadow-sm"
+              className="btn btn-success d-flex align-items-center gap-2 position-relative shadow-sm btn-nav-action px-3"
               data-testid="navbar-cart-btn"
             >
               <i className="bi bi-cart3 fs-5"></i>
@@ -112,7 +112,7 @@ export const Navbar = ({ onSearchChange }) => {
             {currentUser ? (
               <div className="dropdown">
                 <button
-                  className="btn btn-nexus-outline dropdown-toggle d-flex align-items-center gap-2"
+                  className="btn btn-nexus-outline dropdown-toggle d-flex align-items-center gap-2 btn-nav-action"
                   type="button"
                   id="userDropdown"
                   data-bs-toggle="dropdown"
@@ -149,11 +149,11 @@ export const Navbar = ({ onSearchChange }) => {
                 </ul>
               </div>
             ) : (
-              <div className="d-flex gap-2">
-                <Link to="/login" className="btn btn-outline-light btn-sm px-3">
+              <div className="d-flex align-items-center gap-2">
+                <Link to="/login" className="btn btn-outline-light btn-nav-action px-3">
                   Iniciar Sesión
                 </Link>
-                <Link to="/registro" className="btn btn-nexus btn-sm px-3">
+                <Link to="/registro" className="btn btn-nexus btn-nav-action px-3">
                   Crear Cuenta
                 </Link>
               </div>
