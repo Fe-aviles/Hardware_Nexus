@@ -314,3 +314,16 @@ export const saveOrden = (orden) => {
   setStorageItem(KEYS.ORDENES, ordenes);
   return orden;
 };
+
+export const descontarStockDeOrden = (items) => {
+  const productos = getProductos();
+  items.forEach((item) => {
+    const prod = productos.find((p) => String(p.id) === String(item.id));
+    if (prod) {
+      prod.stock = Math.max(0, (Number(prod.stock) || 0) - (Number(item.cantidad) || 1));
+    }
+  });
+  setStorageItem(KEYS.PRODUCTOS, productos);
+  return productos;
+};
+

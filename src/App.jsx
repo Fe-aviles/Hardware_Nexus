@@ -19,6 +19,11 @@ import { LoginView } from "./views/LoginView";
 import { RegisterView } from "./views/RegisterView";
 import { ProfileView } from "./views/ProfileView";
 
+// Vistas Desarrolladas (Parte 2 - Flujo Checkout y Pagos)
+import { CheckoutView } from "./views/CheckoutView";
+import { PaymentSuccessView } from "./views/PaymentSuccessView";
+import { PaymentFailedView } from "./views/PaymentFailedView";
+
 const ToastContainer = () => {
   const { notification } = useCart();
   if (!notification) return null;
@@ -53,15 +58,11 @@ export const App = () => {
                 <Route path="/registro" element={<RegisterView />} />
                 <Route path="/perfil" element={<ProfileView />} />
 
-                <Route
-                  path="/checkout"
-                  element={
-                    <PlaceholderView
-                      title="Paso de Pago / Checkout"
-                      description="Formulario de despacho con selección de región/comuna y selección de método de pago."
-                    />
-                  }
-                />
+                {/* Rutas de Checkout y Pagos - Parte 2 */}
+                <Route path="/checkout" element={<CheckoutView />} />
+                <Route path="/pago-exitoso" element={<PaymentSuccessView />} />
+                <Route path="/pago-fallido" element={<PaymentFailedView />} />
+
                 <Route
                   path="/admin"
                   element={
