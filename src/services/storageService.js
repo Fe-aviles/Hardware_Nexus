@@ -153,11 +153,18 @@ const KEYS = {
   ORDENES: "nexus_ordenes"
 };
 
-// Safe LocalStorage helpers
+// Safe LocalStorage helpers (Soporta navegadores y entornos de test unitario como Node/Vitest/Jasmine)
+const getLocalStorageInstance = () => {
+  if (typeof window !== "undefined" && window.localStorage) return window.localStorage;
+  if (typeof globalThis !== "undefined" && globalThis.localStorage) return globalThis.localStorage;
+  return null;
+};
+
 const getStorageItem = (key, fallback) => {
-  if (typeof window === "undefined" || !window.localStorage) return fallback;
+  const storage = getLocalStorageInstance();
+  if (!storage) return fallback;
   try {
-    const item = window.localStorage.getItem(key);
+    const item = storage.getItem(key);
     return item ? JSON.parse(item) : fallback;
   } catch (error) {
     console.error(`Error reading ${key} from localStorage:`, error);
@@ -166,9 +173,10 @@ const getStorageItem = (key, fallback) => {
 };
 
 const setStorageItem = (key, value) => {
-  if (typeof window === "undefined" || !window.localStorage) return;
+  const storage = getLocalStorageInstance();
+  if (!storage) return;
   try {
-    window.localStorage.setItem(key, JSON.stringify(value));
+    storage.setItem(key, JSON.stringify(value));
   } catch (error) {
     console.error(`Error writing ${key} to localStorage:`, error);
   }
