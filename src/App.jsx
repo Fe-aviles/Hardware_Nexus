@@ -14,6 +14,11 @@ import { CartView } from "./views/CartView";
 import { ContactView } from "./views/ContactView";
 import { PlaceholderView } from "./views/PlaceholderView";
 
+// Vistas Desarrolladas (Parte 2 - Autenticación y Perfil)
+import { LoginView } from "./views/LoginView";
+import { RegisterView } from "./views/RegisterView";
+import { ProfileView } from "./views/ProfileView";
+
 const ToastContainer = () => {
   const { notification } = useCart();
   if (!notification) return null;
@@ -43,25 +48,11 @@ export const App = () => {
                 <Route path="/carrito" element={<CartView />} />
                 <Route path="/contacto" element={<ContactView />} />
 
-                {/* Rutas delegadas a Parte 2 (Compañero) */}
-                <Route
-                  path="/login"
-                  element={
-                    <PlaceholderView
-                      title="Inicio de Sesión"
-                      description="Módulo de autenticación de clientes y administradores con validaciones de credenciales."
-                    />
-                  }
-                />
-                <Route
-                  path="/registro"
-                  element={
-                    <PlaceholderView
-                      title="Registro de Usuarios"
-                      description="Formulario para la creación de nuevas cuentas de cliente con validaciones de contraseña y correo."
-                    />
-                  }
-                />
+                {/* Rutas Desarrolladas - Parte 2 */}
+                <Route path="/login" element={<LoginView />} />
+                <Route path="/registro" element={<RegisterView />} />
+                <Route path="/perfil" element={<ProfileView />} />
+
                 <Route
                   path="/checkout"
                   element={

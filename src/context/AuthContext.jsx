@@ -4,7 +4,8 @@ import {
   setSesionActual,
   clearSesionActual,
   getUsuarios,
-  saveUsuario
+  saveUsuario,
+  updateUsuario
 } from "../services/storageService";
 
 const AuthContext = createContext();
@@ -71,10 +72,23 @@ export const AuthProvider = ({ children }) => {
     clearSesionActual();
   };
 
+  const updateProfile = (nuevosDatos) => {
+    if (!currentUser) return { success: false, message: "No hay sesión activa" };
+    const actualizado = updateUsuario(currentUser.id, nuevosDatos);
+    if (actualizado) {
+      const sanitized = { ...actualizado };
+      delete sanitized.password;
+      setCurrentUser(sanitized);
+      setSesionActual(sanitized);
+      return { success: true, user: sanitized };
+    }
+    return { success: false, message: "Error al actualizar perfil" };
+  };
+
   const isAdmin = currentUser?.rol === "Administrador";
 
   return (
-    <AuthContext.Provider value={{ currentUser, login, register, logout, isAdmin, loading }}>
+    <AuthContext.Provider value={{ currentUser, login, register, logout, updateProfile, isAdmin, loading }}>
       {children}
     </AuthContext.Provider>
   );

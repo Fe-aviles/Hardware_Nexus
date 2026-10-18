@@ -268,6 +268,27 @@ export const saveUsuario = (usuario) => {
   return usuario;
 };
 
+export const updateUsuario = (id, datosActualizados) => {
+  const usuarios = getUsuarios();
+  const index = usuarios.findIndex((u) => String(u.id) === String(id));
+  if (index === -1) return null;
+
+  usuarios[index] = {
+    ...usuarios[index],
+    ...datosActualizados
+  };
+  setStorageItem(KEYS.USUARIOS, usuarios);
+  return usuarios[index];
+};
+
+export const deleteUsuario = (id) => {
+  const usuarios = getUsuarios();
+  const filtrados = usuarios.filter((u) => String(u.id) !== String(id));
+  setStorageItem(KEYS.USUARIOS, filtrados);
+  return filtrados;
+};
+
+
 export const getSesionActual = () => {
   return getStorageItem(KEYS.SESION, null);
 };
