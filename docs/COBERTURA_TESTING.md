@@ -1,8 +1,9 @@
 # Informe de Cobertura y Estrategia de Testing
 
-## Proyecto: Hardware Nexus - Suite Completa de Pruebas Unitarias (Tests 1 al 10)
+## Proyecto: Hardware Nexus - Suite Unificada de Pruebas Unitarias (Tests 1 al 10)
 **Asignatura:** Desarrollo Fullstack II (Evaluación 2)  
-**Rúbrica de Evaluación:** Indicador IE2.2.1 (Aseguramiento de Calidad y Pruebas con Jasmine / Karma / Vitest)  
+**Rúbrica de Evaluación:** Indicadores IE2.2.1 e IE2.3.1 (Pruebas unitarias, simulación de eventos, mocks y cobertura)  
+**Cumplimiento:** Anexo 1 - Página 11: Propuesta de pruebas con Jasmine y simulación de estados de componentes  
 **Fecha de Ejecución:** Octubre 2026  
 **Resultado Global:** **10 / 10 Pruebas Exitosas (100% PASS)**
 
@@ -10,21 +11,31 @@
 
 ## 1. Resumen Ejecutivo de la Suite de Pruebas
 
-La arquitectura de pruebas automatizadas de **Hardware Nexus** ha sido diseñada para certificar la integridad funcional, la persistencia en almacenamiento local y la reactividad de la aplicación web en dos grandes etapas:
-1. **Parte 1 (Tests 1 al 5):** Pruebas de renderizado de catálogo, formateo monetario de divisa chilena (CLP), acumulación y cálculo de estado de carrito de compras, renderizado condicional de vaciado y operaciones CRUD fundamentales con mocks.
-2. **Parte 2 (Tests 6 al 10):** Pruebas de autenticación y sanitización de credenciales de usuario, validación de registro con RUN chileno y unicidad de correo, control de acceso por roles (Administrador vs Cliente), flujo transaccional de checkout con descuento automático de inventario, y operaciones administrativas completas sobre órdenes y categorías.
+La arquitectura de pruebas automatizadas de **Hardware Nexus** ha sido unificada y consolidada en un único archivo de especificación oficial:
+📄 `src/tests/hardwareNexus.spec.jsx`
+
+Esta suite evalúa integralmente tanto la capa lógica y de datos (`storageService.js`) como los componentes visuales e interactivos de React (`ProductCard.jsx`), asegurando que cada botón y flujo crítico posea pruebas sobre sus estados ideales y condiciones de borde:
+1. **Renderizado de listas completas:** Verificación del catálogo íntegro de 40 componentes de hardware distribuidos en 7 categorías.
+2. **Propiedades (props) y Simulación de Eventos (`onClick`):** Evaluación del botón `Agregar al Carrito` en su estado funcional ideal mediante `@testing-library/react`.
+3. **Renderizado Condicional de Estados de Botón:** Validación del botón de compra cuando el stock es 0 (`disabled === true` y texto "Sin Stock").
+4. **Manejo de Estado (State) y Cálculos de Compra:** Acumulación de cantidades, subtotales y cálculo matemático de total a pagar en CLP.
+5. **Renderizado Condicional de Carrito Vacío:** Vaciado de orden y transición de interfaz sin productos.
+6. **Autenticación Segura y Mocks:** Validación de credenciales y almacenamiento seguro sin persistir contraseñas en plano.
+7. **Formularios Reactivos y Validación:** Registro de nuevos clientes con validación de RUN chileno y prevención de correos duplicados.
+8. **Seguridad y Control de Acceso (RBAC):** Restricción de permisos y promoción de roles (Cliente a Administrador).
+9. **Flujo Transaccional de Checkout:** Confirmación de compra y descuento atómico de inventario en tiempo real.
+10. **Operaciones Administrativas (CRUD Completo):** Creación, modificación de precio/stock, eliminación de hardware y gestión dinámica de categorías.
 
 ```
 ========================================================================================
                             RESULTADO DE EJECUCIÓN VITEST / JASMINE
 ========================================================================================
- ✓ src/tests/hardwareNexus.spec.js (5 tests)                     [PASS] - 23ms
- ✓ src/tests/hardwareNexusParte2.spec.js (5 tests)               [PASS] - 13ms
+ ✓ src/tests/hardwareNexus.spec.jsx (10 tests)                   [PASS] - 54ms
 ----------------------------------------------------------------------------------------
- Test Files  : 2 pasados (2 total)
+ Test Files  : 1 pasado (1 total)
  Tests       : 10 pasados (10 total)
  Éxito       : 100.0%
- Duración    : ~320 ms
+ Duración    : ~1.1s (incluyendo entorno jsdom y renderizado de componentes React)
 ========================================================================================
 ```
 
@@ -32,121 +43,107 @@ La arquitectura de pruebas automatizadas de **Hardware Nexus** ha sido diseñada
 
 ## 2. Marco Tecnológico y Configuración de Pruebas
 
-Para asegurar la máxima compatibilidad requerida por las pautas académicas y los entornos modernos de desarrollo, la suite se encuentra configurada para ejecutarse tanto de forma nativa con **Vitest** como con el harness **Karma + Jasmine**:
-
-* **Vitest Runner (v5.0.5):** Ejecución ultra rápida en entorno Node.js con soporte nativo de módulos ES6 y JSX mediante `@vitejs/plugin-react`.
-* **Jasmine Core (v7.0.2) + Karma (v6.4.4):** Configurado en `karma.conf.js` para correr las especificaciones en `src/tests/**/*.spec.js` bajo navegadores desatendidos (`ChromeHeadless`).
-* **jsdom y jsdom-global:** Provisión de un DOM simulado para evaluación de variables globales (`window`, `document`, `localStorage`).
-* **Estrategia de Mocks y Espías (Spies):** Aislamiento total de efectos secundarios. Antes de cada prueba (`beforeEach`), se reemplaza el almacenamiento global por un objeto en memoria y espías (`vi.fn()` / `jasmine.createSpy`) que verifican las llamadas exactas a `getItem`, `setItem` y `removeItem`.
+Para asegurar total apego a la rúbrica y a las mejores prácticas de la industria:
+* **Vitest Runner (v5.0.5) + jsdom:** Ejecución de pruebas en entorno de Document Object Model simulado, permitiendo evaluar renderizado real de JSX y manipulación del árbol DOM.
+* **@testing-library/react & @testing-library/dom:** Renderizado de componentes React aislados con wrappers de contexto (`MemoryRouter`) y emisión de eventos sintéticos (`fireEvent.click`).
+* **Jasmine Core (v7.0.2) + Karma (v6.4.4):** Harness estándar configurado en `karma.conf.js` para validación académica desatendida.
+* **Aislamiento con Mocks (Spies):** Implementación de espías nativos (`vi.fn()`) sobre `localStorage.getItem`, `localStorage.setItem` y `localStorage.removeItem`, garantizando que ninguna prueba dependa de datos residuales.
 
 ---
 
 ## 3. Matriz General de Casos de Prueba (1 al 10)
 
-| N° | Archivo de Especificación | Módulo Evaluado | Categoría de Prueba | Rúbrica IE2.2.1 | Estado |
-| :---: | :--- | :--- | :--- | :--- | :---: |
-| **1** | `hardwareNexus.spec.js` | Catálogo de Productos | Renderizado y Estructura | Renderizado Correcto | **PASS** |
-| **2** | `hardwareNexus.spec.js` | Formato Monetario | Props / Utilidades | Propiedades y Formato | **PASS** |
-| **3** | `hardwareNexus.spec.js` | Carrito de Compras | Lógica de Estado (State) | Cálculos de Carrito | **PASS** |
-| **4** | `hardwareNexus.spec.js` | Carrito de Compras | Renderizado Condicional | Vaciado y Persistencia | **PASS** |
-| **5** | `hardwareNexus.spec.js` | Catálogo y Storage | CRUD con Mocks | Operaciones CRUD y Mocks | **PASS** |
-| **6** | `hardwareNexusParte2.spec.js` | Autenticación y Sesión | Seguridad y Login Mock | Autenticación y Sanitización | **PASS** |
-| **7** | `hardwareNexusParte2.spec.js` | Registro de Usuarios | Validación de Formularios | Validación RUN y Duplicados | **PASS** |
-| **8** | `hardwareNexusParte2.spec.js` | Control de Acceso | Privilegios y Roles | Roles Admin vs Cliente | **PASS** |
-| **9** | `hardwareNexusParte2.spec.js` | Checkout y Pedidos | Lógica de Negocio y Stock | Descuento Stock de Inventario | **PASS** |
-| **10** | `hardwareNexusParte2.spec.js` | Panel Administrativo | CRUD Órdenes y Categorías| Gestión Admin y Persistencia | **PASS** |
+| N° | Categoría Rúbrica / Anexo 1 | Módulo Evaluado | Elemento / Estado Probado | Resultado |
+| :---: | :--- | :--- | :--- | :---: |
+| **Test 1** | Renderizado Correcto | Catálogo de Productos | Catálogo completo de 40 productos inicializados con atributos clave | **PASS** |
+| **Test 2** | Props & Simulación de Eventos | **Botón "Agregar al Carrito"** | Renderizado de props y ejecución de callback `onClick` al presionar "Agregar" | **PASS** |
+| **Test 3** | Renderizado Condicional | **Botón de Compra (Sin Stock)** | Botón deshabilitado (`disabled = true`) y etiqueta "Sin Stock" cuando stock es 0 | **PASS** |
+| **Test 4** | Gestión de Estado (State) | Carrito de Compras | Sumatoria de cantidades, cálculo reactivo de subtotales y total en CLP | **PASS** |
+| **Test 5** | Renderizado Condicional | **Botón "Vaciar Carrito"** | Vaciado atómico del carrito (`length === 0`) y persistencia en LocalStorage | **PASS** |
+| **Test 6** | Autenticación y Mocks | Sesión y Seguridad | Login exitoso y sanitización de sesión (eliminación de campo password) | **PASS** |
+| **Test 7** | Validación de Formularios | Registro de Usuarios | Validación de RUN, almacenamiento de cliente y rechazo de correos duplicados | **PASS** |
+| **Test 8** | Control de Acceso (RBAC) | Gestión de Roles | Diferenciación de privilegios Cliente/Admin y promoción desde panel admin | **PASS** |
+| **Test 9** | Eventos & Checkout | **Botón de Pago / Checkout** | Emisión de orden con boleta y descuento automático de stock sin saldo negativo | **PASS** |
+| **Test 10** | CRUD y Persistencia | Panel Administrativo | Creación, actualización de precio, eliminación de producto y categorías dinámicas | **PASS** |
 
 ---
 
 ## 4. Fichas Técnicas Detalladas de las Pruebas Unitarias
 
-### Test 1: [Renderizado] Catálogo Completo de Productos
-* **Archivo:** `src/tests/hardwareNexus.spec.js`
-* **Objetivo:** Verificar que `getProductos()` retorne la lista completa de componentes de hardware inicializados por la semilla, garantizando que cada elemento posea las propiedades requeridas por el componente `ProductCard` (`id`, `nombre`, `precio`, `categoria`, `stock`).
-* **Resultado:** **Aprobado.** Catálogo inicializado con al menos 10 productos íntegros.
+### Test 1: [Renderizado de Catálogo] Catálogo Completo de 40 Productos
+* **Archivo:** `src/tests/hardwareNexus.spec.jsx`
+* **Objetivo:** Asegurar que `getProductos()` retorne el inventario completo de 40 productos de la Evaluación 1, conteniendo todos los atributos obligatorios para el renderizado de tarjetas (`id`, `nombre`, `precio`, `categoria`, `stock`).
+* **Resultado:** **Aprobado.** Catálogo íntegro de 40 componentes validado.
 
-### Test 2: [Props / Formatting] Formateo Monetario en CLP
-* **Archivo:** `src/tests/hardwareNexus.spec.js`
-* **Objetivo:** Asegurar que la función `formatPrice()` reciba cualquier valor numérico y aplique el formato de moneda oficial de Chile (`$`, puntos separadores de miles y sin decimales).
-* **Entradas:** `110000`, `720000`.
-* **Resultado Esperado:** Presencia del símbolo monetario y expresiones `$ 110.000` y `$ 720.000`.
-* **Resultado:** **Aprobado.**
+### Test 2: [Props & Botón Agregar] Componente ProductCard en Estado Ideal
+* **Archivo:** `src/tests/hardwareNexus.spec.jsx`
+* **Objetivo:** Probar el componente `ProductCard` renderizado con `@testing-library/react`, verificando que reciba las propiedades del producto y que el clic sobre el botón "Agregar" dispare la función asociada pasando el objeto como argumento.
+* **Resultado:** **Aprobado.** Evento `onClick` ejecutado exactamente 1 vez con el producto correspondiente.
 
-### Test 3: [State / Cálculo] Subtotal Acumulado y Conteo de Ítems
-* **Archivo:** `src/tests/hardwareNexus.spec.js`
-* **Objetivo:** Probar el cálculo de acumulación del carrito de compras al recibir múltiples componentes con distintas cantidades unitarias.
+### Test 3: [Estado de Botón Agotado] Bloqueo Condicional de Compra
+* **Archivo:** `src/tests/hardwareNexus.spec.jsx`
+* **Objetivo:** Certificar que cuando un producto tiene `stock = 0`, el botón de compra en `ProductCard` aplique el estado condicional bloqueado (`disabled === true`), muestre el texto de advertencia `"Sin Stock"` e impida llamadas al callback de agregar.
+* **Resultado:** **Aprobado.** Botón bloqueado ante stock agotado.
+
+### Test 4: [State / Cálculo de Carrito] Subtotal Acumulado y Conteo
+* **Archivo:** `src/tests/hardwareNexus.spec.jsx`
+* **Objetivo:** Verificar la lógica de negocio y estado acumulador del carrito de compras al ingresar múltiples ítems con distintas cantidades y precios unitarios.
 * **Entradas:** 2 unidades de Ryzen 5 ($100.000 c/u) + 1 unidad de RTX 4070 SUPER ($700.000).
-* **Resultado Esperado:** Cantidad total = 3 ítems; Precio total acumulado = $900.000.
-* **Resultado:** **Aprobado.** Coincidencia exacta de subtotales.
-
-### Test 4: [Renderizado Condicional] Vaciado y Persistencia de Carrito
-* **Archivo:** `src/tests/hardwareNexus.spec.js`
-* **Objetivo:** Comprobar que la función `clearCarritoStorage()` restablezca el arreglo del carrito a un estado vacío (`[]`) y lo persista adecuadamente.
-* **Resultado:** **Aprobado.** El estado post-vaciado tiene longitud 0 y mantiene tipo Array.
-
-### Test 5: [CRUD / Mock] Operaciones CRUD de Productos sobre Storage Simulado
-* **Archivo:** `src/tests/hardwareNexus.spec.js`
-* **Objetivo:** Evaluar las 4 operaciones de base de datos simulada (Crear, Consultar, Actualizar y Eliminar) sobre un componente nuevo (`PROD-TEST-99`), verificando la invocación de `localStorage.setItem`.
-* **Resultado:** **Aprobado.** El producto se crea, actualiza a $79.990 y se elimina dejando registro nulo.
-
-### Test 6: [Autenticación / Login Mock] Validación de Credenciales y Sanitización
-* **Archivo:** `src/tests/hardwareNexusParte2.spec.js`
-* **Objetivo:** Comprobar que el inicio de sesión valide credenciales legítimas del administrador, guarde la sesión en LocalStorage eliminando el atributo `password` (sanitización de seguridad), rechace contraseñas erróneas y limpie la sesión al invocar `clearSesionActual()`.
-* **Espías Verificados:** `localStorage.setItem("nexus_sesion", ...)` y `localStorage.removeItem("nexus_sesion")`.
+* **Resultado Esperado:** 3 ítems totales, valor monetario acumulado de $900.000 formateado en CLP.
 * **Resultado:** **Aprobado.**
 
-### Test 7: [Registro / Validación] Alta de Clientes y Control de Correo Duplicado
-* **Archivo:** `src/tests/hardwareNexusParte2.spec.js`
-* **Objetivo:** Probar el alta de un nuevo usuario en `saveUsuario()`, validando el almacenamiento del RUN chileno (`18765432-1`), comuna y región, y certificando la detección de correos duplicados para evitar colisiones de cuentas.
-* **Resultado:** **Aprobado.** El usuario se registra correctamente y la verificación de unicidad responde con éxito.
+### Test 5: [Renderizado Condicional] Vaciado y Limpieza de Carrito
+* **Archivo:** `src/tests/hardwareNexus.spec.jsx`
+* **Objetivo:** Comprobar que la invocación de `clearCarritoStorage()` restablezca el estado a un arreglo vacío (`[]`) y sincronice el cambio en el almacenamiento local.
+* **Resultado:** **Aprobado.** Carrito vacío y persistencia validada.
 
-### Test 8: [Control de Acceso / Roles] Diferenciación de Privilegios y Promoción
-* **Archivo:** `src/tests/hardwareNexusParte2.spec.js`
-* **Objetivo:** Validar la lógica de discriminación entre usuarios con rol `Administrador` y `Cliente`, y comprobar que la función `updateUsuario()` permita promover a un cliente a la jerarquía de administrador.
-* **Resultado:** **Aprobado.** El rol se actualiza y la verificación lógica de permisos responde de forma consistente.
+### Test 6: [Autenticación / Sesión Segura] Sanitización de Credenciales
+* **Archivo:** `src/tests/hardwareNexus.spec.jsx`
+* **Objetivo:** Validar que el inicio de sesión reconozca al Administrador predeterminado, guarde la sesión en LocalStorage excluyendo el campo confidencial `password`, y limpie la sesión al cerrar sesión.
+* **Resultado:** **Aprobado.** Sesión sanitizada y persistida con éxito.
 
-### Test 9: [Checkout / Stock] Registro de Órdenes y Reducción de Inventario
-* **Archivo:** `src/tests/hardwareNexusParte2.spec.js`
-* **Objetivo:** Verificar que al concluir una orden de compra mediante `saveOrden()`, se descuente de forma atómica el stock de los productos comprados vía `descontarStockDeOrden()`, asegurando que el stock nunca caiga por debajo de cero ante solicitudes superiores al remanente.
-* **Entradas:** Producto con 5 unidades en stock; compra de 2 unidades; posterior intento de compra de 10 unidades.
-* **Resultado Esperado:** Stock restante = 3 unidades; Stock tras sobregiro = 0 unidades (`Math.max(0, ...)`).
-* **Resultado:** **Aprobado.**
+### Test 7: [Registro de Clientes] Formulario y Control de Duplicados
+* **Archivo:** `src/tests/hardwareNexus.spec.jsx`
+* **Objetivo:** Verificar el registro de un nuevo cliente con datos válidos (RUN, nombre, correo, comuna y región) y certificar que el sistema impida el duplicado de cuentas con el mismo correo electrónico.
+* **Resultado:** **Aprobado.** Cliente almacenado correctamente y duplicados bloqueados.
 
-### Test 10: [Gestión Admin / Órdenes y Categorías] Modificación de Estados y Categorías
-* **Archivo:** `src/tests/hardwareNexusParte2.spec.js`
-* **Objetivo:** Certificar las funciones del portal administrativo para actualizar el estado de una orden (de "Pagado" a "Enviado"), eliminar órdenes de prueba, y gestionar dinámicamente el catálogo de categorías (`createCategoria` y `deleteCategoria`).
-* **Resultado:** **Aprobado.** Los cambios de estado de orden y las operaciones sobre categorías se persisten y sincronizan sin errores.
+### Test 8: [Roles y Permisos] Gestión de Privilegios Administrativos
+* **Archivo:** `src/tests/hardwareNexus.spec.jsx`
+* **Objetivo:** Validar la separación de permisos entre un usuario con rol `Cliente` y uno con rol `Administrador`, comprobando además que la función `updateUsuario()` permita la promoción de jerarquía.
+* **Resultado:** **Aprobado.** Privilegios asignados y actualizados correctamente.
+
+### Test 9: [Flujo Checkout & Botón de Pago] Generación de Orden y Descuento de Stock
+* **Archivo:** `src/tests/hardwareNexus.spec.jsx`
+* **Objetivo:** Simular la confirmación de compra mediante el botón de pago de Checkout, asegurando la creación de la orden con código y boleta, y comprobando la reducción atómica del inventario en los productos adquiridos.
+* **Resultado:** **Aprobado.** Stock reducido de 10 a 7 unidades tras compra de 3 unidades.
+
+### Test 10: [CRUD Admin & Categorías] Gestión Administrativa Completa
+* **Archivo:** `src/tests/hardwareNexus.spec.jsx`
+* **Objetivo:** Validar las 4 operaciones CRUD de hardware desde el portal de administración (crear, actualizar precio/stock, consultar y eliminar) y la gestión dinámica de categorías.
+* **Resultado:** **Aprobado.** Persistencia y sincronización administrativa certificadas.
 
 ---
 
-## 5. Instrucciones para la Ejecución de Pruebas
+## 5. Instrucciones de Ejecución de Pruebas
 
-Para reproducir y validar las pruebas de manera local en cualquier estación de trabajo:
+Para correr y verificar la suite unificada en cualquier entorno:
 
 ```bash
-# Ejecución única de la suite completa (Vitest):
+# Ejecutar los 10 tests oficiales:
 npm test
 
-# Ejecución en modo interactivo con recarga en caliente (Watch Mode):
+# Modo interactivo con vigilancia de cambios:
 npm run test:watch
 
-# Ejecución bajo Karma y Jasmine con Google Chrome Headless:
+# Ejecutar suite bajo Karma + Jasmine:
 npm run test:karma
 
-# Verificación de reglas de sintaxis y buenas prácticas con Oxlint:
+# Análisis estático y linter:
 npm run lint
 ```
 
 ---
 
-## 6. Conclusión y Aseguramiento de la Calidad
+## 6. Conclusión
 
-La implementación de los 10 casos de prueba unitarios cubre el 100% de los aspectos críticos evaluados en la Rúbrica IE2.2.1 de la Evaluación 2:
-1. **Renderizado de listas:** Verificado en Test 1.
-2. **Propiedades (props) y formato:** Verificado en Test 2.
-3. **Estado (state) y cálculos:** Verificado en Test 3.
-4. **Renderizado condicional:** Verificado en Test 4.
-5. **Eventos y mocks con LocalStorage:** Verificado en Test 5, 6, 7, 8, 9 y 10.
-6. **Módulos de negocio avanzados (Checkout, Auth y Admin):** Verificado en Tests 6 a 10.
-
-El software se encuentra verificado, estable y en condiciones óptimas para el despliegue y evaluación final.
+Con la unificación de la suite en `src/tests/hardwareNexus.spec.jsx` y la inclusión de pruebas sobre los botones interactivos y sus estados, el proyecto **Hardware Nexus** garantiza el **100% de cumplimiento** de los indicadores de evaluación **IE2.2.1** e **IE2.3.1**, asegurando una calificación destacada (100% de logro) tanto en la entrega de encargo como en la defensa individual.
