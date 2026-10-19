@@ -121,13 +121,23 @@ export const Navbar = ({ onSearchChange }) => {
                   <i className="bi bi-person-circle"></i>
                   <span>{currentUser.nombre}</span>
                 </button>
-                <ul className="dropdown-menu dropdown-menu-dark dropdown-menu-end" aria-labelledby="userDropdown">
+                <ul className="dropdown-menu dropdown-menu-dark dropdown-menu-end shadow-lg" aria-labelledby="userDropdown" style={{ minWidth: "240px", borderColor: "#334155" }}>
                   <li>
-                    <span className="dropdown-item-text text-muted small">
-                      {currentUser.correo} ({currentUser.rol})
-                    </span>
+                    <div className="dropdown-item-text py-2 px-3">
+                      <div className="fw-bold small" style={{ color: "#f3f4f6" }}>
+                        {currentUser.nombre} {currentUser.apellidos || ""}
+                      </div>
+                      <div className="small" style={{ color: "#9ca3af" }}>
+                        {currentUser.correo}
+                      </div>
+                      <div className="mt-1">
+                        <span className="badge bg-info text-dark fw-bold" style={{ fontSize: "0.72rem" }}>
+                          ({currentUser.rol})
+                        </span>
+                      </div>
+                    </div>
                   </li>
-                  <li><hr className="dropdown-divider" /></li>
+                  <li><hr className="dropdown-divider border-secondary my-1" /></li>
                   <li>
                     <Link className="dropdown-item" to="/perfil">
                       <i className="bi bi-person me-2"></i> Mi Perfil

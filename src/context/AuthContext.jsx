@@ -48,7 +48,8 @@ export const AuthProvider = ({ children }) => {
 
   const register = (datosUsuario) => {
     const usuarios = getUsuarios();
-    const existe = usuarios.some((u) => u.correo.toLowerCase() === datosUsuario.correo.trim().toLowerCase());
+    const cleanEmail = (datosUsuario.correo || "").trim().toLowerCase();
+    const existe = usuarios.some((u) => u.correo.toLowerCase() === cleanEmail);
     if (existe) {
       return { success: false, message: "El correo electrónico ya está registrado." };
     }
@@ -56,7 +57,8 @@ export const AuthProvider = ({ children }) => {
     const nuevoUsuario = {
       id: `usr-${Date.now()}`,
       rol: "Cliente",
-      ...datosUsuario
+      ...datosUsuario,
+      correo: cleanEmail
     };
 
     saveUsuario(nuevoUsuario);

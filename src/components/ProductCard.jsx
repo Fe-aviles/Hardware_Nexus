@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { getCategoryIconData } from "../data/categoryIcons";
 
 export const formatPrice = (price) => {
   return new Intl.NumberFormat("es-CL", {
@@ -25,12 +26,16 @@ export const ProductCard = ({ product, onAddToCart }) => {
 
   const isLowStock = stock <= (stock_critico || 3) && stock > 0;
   const isOutOfStock = stock <= 0;
+  const categoryMeta = getCategoryIconData(categoria);
 
   return (
     <div className="col-12 col-sm-6 col-md-4 col-lg-3 mb-4" data-testid={`product-card-${id}`}>
       <div className="product-card">
         <div className="img-container">
-          <span className="badge-category">{categoria}</span>
+          <span className="badge-category d-inline-flex align-items-center gap-1">
+            <i className={`bi ${categoryMeta.icon}`} style={{ color: categoryMeta.color }}></i>
+            <span>{categoria}</span>
+          </span>
           {enOferta && <span className="badge-offer">OFERTA</span>}
           <img
             src={imagenUrl}

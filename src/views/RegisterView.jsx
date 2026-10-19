@@ -1,11 +1,22 @@
-import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { REGIONES, getComunasPorRegion } from "../data/chileData";
 
 export const RegisterView = () => {
-  const { register } = useAuth();
+  const { register, currentUser } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Redirección si venía de Checkout o ruta protegida
+  const queryParams = new URLSearchParams(location.search);
+  const redirectTo = queryParams.get("redirect") || "/perfil";
+
+  useEffect(() => {
+    if (currentUser) {
+      navigate(redirectTo);
+    }
+  }, [currentUser, navigate, redirectTo]);
 
   const [formData, setFormData] = useState({
     run: "",
@@ -65,6 +76,18 @@ export const RegisterView = () => {
       return;
     }
 
+    // Validación y formateo de RUN chileno
+    const cleanRun = run.trim().replace(/\./g, "").toUpperCase();
+    let formattedRun = cleanRun;
+    if (!cleanRun.includes("-") && /^\d{7,8}[\dK]$/.test(cleanRun)) {
+      formattedRun = `${cleanRun.slice(0, -1)}-${cleanRun.slice(-1)}`;
+    }
+    const runRegex = /^\d{7,8}-[\dK]$/;
+    if (!runRegex.test(formattedRun)) {
+      setErrorMessage("El RUN ingresado debe tener un formato chileno válido (ej: 12345678-9 o 12.345.678-K).");
+      return;
+    }
+
     // Validación de email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(correo.trim())) {
@@ -85,7 +108,7 @@ export const RegisterView = () => {
 
     setLoading(true);
     const result = register({
-      run: run.trim(),
+      run: formattedRun,
       nombre: nombre.trim(),
       apellidos: apellidos.trim(),
       correo: correo.trim(),
@@ -99,8 +122,8 @@ export const RegisterView = () => {
     if (result.success) {
       setSuccessMessage("¡Cuenta creada exitosamente! Redirigiendo a tu perfil...");
       setTimeout(() => {
-        navigate("/perfil");
-      }, 1200);
+        navigate(redirectTo);
+      }, 1000);
     } else {
       setErrorMessage(result.message || "Error al crear la cuenta de usuario.");
     }
@@ -345,8 +368,11 @@ export const RegisterView = () => {
 
             {/* Enlace a Login */}
             <div className="text-center pt-3 border-top border-secondary">
-              <span className="text-muted small">¿Ya tienes una cuenta registrada? </span>
-              <Link to="/login" className="text-info small fw-bold text-decoration-none">
+              <span className="small" style={{ color: "#cbd5e1" }}>¿Ya tienes una cuenta registrada? </span>
+              <Link
+                to={redirectTo !== "/perfil" ? `/login?redirect=${encodeURIComponent(redirectTo)}` : "/login"}
+                className="text-info small fw-bold text-decoration-none hover-info"
+              >
                 Inicia sesión aquí
               </Link>
             </div>

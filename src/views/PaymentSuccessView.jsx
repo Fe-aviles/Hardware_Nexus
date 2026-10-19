@@ -1,11 +1,10 @@
 import React, { useState } from "react";
-import { useLocation, Link, useNavigate } from "react-router-dom";
+import { useLocation, Link } from "react-router-dom";
 import { formatPrice } from "../components/ProductCard";
 import { getOrdenes } from "../services/storageService";
 
 export const PaymentSuccessView = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const [emailSent, setEmailSent] = useState(false);
 
   // Obtener la orden desde el estado de navegación o tomar la más reciente del storage

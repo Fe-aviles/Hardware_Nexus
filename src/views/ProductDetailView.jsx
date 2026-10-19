@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { getProductoById } from "../services/storageService";
 import { useCart } from "../context/CartContext";
 import { formatPrice } from "../components/ProductCard";
 
 export const ProductDetailView = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
   const { addToCart } = useCart();
   const [product, setProduct] = useState(null);
   const [quantity, setQuantity] = useState(1);
@@ -47,7 +46,6 @@ export const ProductDetailView = () => {
     especificaciones
   } = product;
 
-  const effectivePrice = enOferta && precioOferta ? precioOferta : precio;
   const isOutOfStock = stock <= 0;
   const isLowStock = stock <= (stock_critico || 3) && stock > 0;
 

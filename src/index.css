@@ -287,8 +287,103 @@ main {
 
 .table-nexus th {
   background-color: #0f172a;
-  color: #94a3b8;
+  color: #cbd5e1;
   font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
+
+/* ==========================================================================
+   WCAG High-Contrast Accessibility Overrides (Dark Theme)
+   ========================================================================== */
+.text-muted {
+  color: #94a3b8 !important; /* Slate 400 - Contrast > 5:1 against dark backgrounds */
+}
+
+/* Labels and secondary descriptions */
+small.text-muted,
+.small.text-muted,
+.form-label.text-muted,
+.form-label {
+  color: #cbd5e1 !important; /* Slate 300 - High legibility */
+}
+
+/* Secondary headings, text-secondary */
+.text-secondary {
+  color: #cbd5e1 !important;
+}
+
+/* Table styling for dark theme and high contrast */
+.table-dark {
+  --bs-table-bg: #1e293b;
+  --bs-table-color: #f8fafc;
+  --bs-table-border-color: #334155;
+}
+
+.table-secondary,
+thead.table-secondary th {
+  background-color: #0f172a !important;
+  color: #e2e8f0 !important;
+  border-bottom: 2px solid #334155 !important;
+  font-weight: 700 !important;
+}
+
+/* Dropdown Menu (Navbar User & Actions) */
+.dropdown-menu-dark {
+  background-color: #1e293b !important;
+  border: 1px solid #475569 !important;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6) !important;
+}
+
+.dropdown-menu-dark .dropdown-item {
+  color: #f1f5f9 !important;
+  transition: all 0.2s ease;
+}
+
+.dropdown-menu-dark .dropdown-item:hover,
+.dropdown-menu-dark .dropdown-item:focus {
+  background-color: #334155 !important;
+  color: #ffffff !important;
+}
+
+.dropdown-menu-dark .dropdown-item-text {
+  color: #cbd5e1 !important;
+}
+
+.dropdown-menu-dark .dropdown-divider {
+  border-color: #334155 !important;
+}
+
+/* Form inputs high contrast */
+.form-control.bg-dark,
+.form-select.bg-dark {
+  background-color: #0f172a !important;
+  border-color: #475569 !important;
+  color: #f8fafc !important;
+}
+
+.form-control.bg-dark:focus,
+.form-select.bg-dark:focus {
+  background-color: #1e293b !important;
+  border-color: #7c3aed !important;
+  box-shadow: 0 0 0 0.25rem rgba(124, 58, 237, 0.25) !important;
+  color: #ffffff !important;
+}
+
+.form-control::placeholder {
+  color: #94a3b8 !important;
+}
+
+/* Category Card Gamer Aesthetics */
+.category-card {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.25s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.category-card:hover {
+  transform: translateY(-5px) !important;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.5), 0 0 20px rgba(124, 58, 237, 0.3) !important;
+  border-color: #a78bfa !important;
+}
+

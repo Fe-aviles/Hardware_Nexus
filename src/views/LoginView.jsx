@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 export const LoginView = () => {
-  const { login } = useAuth();
+  const { login, currentUser } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -14,9 +14,20 @@ export const LoginView = () => {
   const [errorMessage, setErrorMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Obtener URL de redirección si venía de una ruta protegida
+  // Obtener URL de redirección si venía de una ruta protegida o checkout
   const queryParams = new URLSearchParams(location.search);
   const redirectTo = queryParams.get("redirect") || "/";
+
+  // Redirigir automáticamente si ya existe sesión activa
+  useEffect(() => {
+    if (currentUser) {
+      if (currentUser.rol === "Administrador") {
+        navigate(redirectTo === "/" ? "/admin" : redirectTo);
+      } else {
+        navigate(redirectTo);
+      }
+    }
+  }, [currentUser, navigate, redirectTo]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -48,7 +59,7 @@ export const LoginView = () => {
     }
 
     setLoading(true);
-    const result = login(correo, password);
+    const result = login(correo.trim(), password);
     setLoading(false);
 
     if (result.success) {
@@ -81,7 +92,7 @@ export const LoginView = () => {
                 <i className="bi bi-person-lock fs-1"></i>
               </div>
               <h2 className="fw-bold text-light mb-1">Iniciar Sesión</h2>
-              <p className="text-muted small">
+              <p className="small mb-0" style={{ color: "#cbd5e1" }}>
                 Accede a tu cuenta de cliente o administración en Hardware Nexus
               </p>
             </div>
@@ -177,8 +188,11 @@ export const LoginView = () => {
 
             {/* Enlace a Registro */}
             <div className="text-center pt-3 border-top border-secondary">
-              <span className="text-muted small">¿Aún no tienes una cuenta? </span>
-              <Link to="/registro" className="text-info small fw-bold text-decoration-none">
+              <span className="small" style={{ color: "#cbd5e1" }}>¿Aún no tienes una cuenta? </span>
+              <Link
+                to={redirectTo !== "/" ? `/registro?redirect=${encodeURIComponent(redirectTo)}` : "/registro"}
+                className="text-info small fw-bold text-decoration-none hover-info"
+              >
                 Regístrate aquí
               </Link>
             </div>
@@ -188,4 +202,5 @@ export const LoginView = () => {
     </div>
   );
 };
+
 export default LoginView;

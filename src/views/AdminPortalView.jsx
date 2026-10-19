@@ -19,6 +19,7 @@ import {
   deleteUsuario
 } from "../services/storageService";
 import { REGIONES, getComunasPorRegion } from "../data/chileData";
+import { getCategoryIconData } from "../data/categoryIcons";
 
 export const AdminPortalView = () => {
   const { currentUser, isAdmin, login } = useAuth();
@@ -920,10 +921,11 @@ export const AdminPortalView = () => {
                       <tbody>
                         {categorias.map((cat) => {
                           const count = productos.filter((p) => p.categoria === cat).length;
+                          const meta = getCategoryIconData(cat);
                           return (
                             <tr key={cat}>
                               <td className="fw-semibold text-light">
-                                <i className="bi bi-folder2 text-info me-2"></i> {cat}
+                                <i className={`bi ${meta.icon} me-2`} style={{ color: meta.color }}></i> {cat}
                               </td>
                               <td className="text-center">
                                 <span className="badge bg-info text-dark">{count} items</span>

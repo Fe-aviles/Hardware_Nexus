@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { getProductos } from "../services/storageService";
+import { getProductos, getCategorias } from "../services/storageService";
 import { ProductCard } from "../components/ProductCard";
 import { useCart } from "../context/CartContext";
+import { getCategoryIconData } from "../data/categoryIcons";
 
 export const HomeView = () => {
   const [productos, setProductos] = useState([]);
+  const [categorias, setCategorias] = useState(["Todas"]);
   const [searchParams] = useSearchParams();
   const [selectedCategory, setSelectedCategory] = useState("Todas");
   const [sortBy, setSortBy] = useState("default");
@@ -16,9 +18,11 @@ export const HomeView = () => {
   useEffect(() => {
     const list = getProductos();
     setProductos(list);
+    const registered = getCategorias();
+    const fromProds = list.map((p) => p.categoria).filter(Boolean);
+    const combined = Array.from(new Set([...registered, ...fromProds]));
+    setCategorias(["Todas", ...combined]);
   }, []);
-
-  const categories = ["Todas", ...new Set(productos.map((p) => p.categoria))];
 
   // Filtrado
   const filteredProducts = productos
@@ -26,8 +30,10 @@ export const HomeView = () => {
       const matchSearch =
         searchQuery === "" ||
         p.nombre.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        p.descripcion.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchCategory = selectedCategory === "Todas" || p.categoria === selectedCategory;
+        (p.descripcion && p.descripcion.toLowerCase().includes(searchQuery.toLowerCase()));
+      const matchCategory =
+        selectedCategory === "Todas" ||
+        p.categoria.toLowerCase() === selectedCategory.toLowerCase();
       return matchSearch && matchCategory;
     })
     .sort((a, b) => {
@@ -44,10 +50,10 @@ export const HomeView = () => {
       {/* Hero Banner */}
       <div className="hero-banner text-center text-md-start d-flex flex-column flex-md-row align-items-center justify-content-between">
         <div className="mb-3 mb-md-0">
-          <span className="badge bg-primary text-uppercase px-3 py-2 mb-2">Nueva Colección 2026</span>
+          <span className="badge bg-primary text-uppercase px-3 py-2 mb-2 fw-bold">Nueva Colección 2026</span>
           <h1 className="display-5 fw-extrabold text-light mb-2">Potencia tu setup al siguiente nivel</h1>
-          <p className="lead text-muted mb-0">
-            Encuentra procesadores de última generación y tarjetas gráficas con stock inmediato y envíos a todo Chile.
+          <p className="lead mb-0" style={{ color: "#cbd5e1" }}>
+            Encuentra procesadores, tarjetas gráficas, memorias RAM, SSDs y refrigeración con stock inmediato y envíos a todo Chile.
           </p>
         </div>
         <div className="d-flex gap-2">
@@ -60,25 +66,37 @@ export const HomeView = () => {
       {/* Barra de Filtros y Categorías */}
       <div id="catalogo" className="card bg-dark border-secondary p-3 mb-4 rounded-3 shadow-sm">
         <div className="row g-3 align-items-center">
-          <div className="col-12 col-md-6 col-lg-5">
-            <label className="form-label text-muted small mb-1">Filtrar por Categoría:</label>
+          <div className="col-12 col-md-7 col-lg-8">
+            <label className="form-label small mb-2 fw-semibold" style={{ color: "#cbd5e1" }}>
+              <i className="bi bi-funnel-fill text-info me-1"></i> Filtrar por Categoría:
+            </label>
             <div className="d-flex flex-wrap gap-2">
-              {categories.map((cat) => (
-                <button
-                  key={cat}
-                  className={`btn btn-sm ${
-                    selectedCategory === cat ? "btn-primary" : "btn-outline-secondary text-light"
-                  }`}
-                  onClick={() => setSelectedCategory(cat)}
-                >
-                  {cat}
-                </button>
-              ))}
+              {categorias.map((cat) => {
+                const isActive = selectedCategory.toLowerCase() === cat.toLowerCase();
+                const meta = getCategoryIconData(cat);
+                return (
+                  <button
+                    key={cat}
+                    type="button"
+                    className={`btn btn-sm d-inline-flex align-items-center gap-1 transition-all ${
+                      isActive ? "btn-nexus fw-bold text-white shadow-glow" : "btn-outline-secondary text-light bg-dark"
+                    }`}
+                    onClick={() => setSelectedCategory(cat)}
+                  >
+                    {cat !== "Todas" && (
+                      <i className={`bi ${meta.icon}`} style={{ color: isActive ? "#ffffff" : meta.color }}></i>
+                    )}
+                    <span>{cat}</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 
-          <div className="col-12 col-md-6 col-lg-4 ms-auto">
-            <label className="form-label text-muted small mb-1">Ordenar por:</label>
+          <div className="col-12 col-md-5 col-lg-4 ms-auto">
+            <label className="form-label small mb-1 fw-semibold" style={{ color: "#cbd5e1" }}>
+              <i className="bi bi-sort-down text-info me-1"></i> Ordenar por:
+            </label>
             <select
               className="form-select form-select-sm bg-dark text-light border-secondary"
               value={sortBy}
@@ -94,7 +112,7 @@ export const HomeView = () => {
 
         {searchQuery && (
           <div className="mt-3 pt-2 border-top border-secondary d-flex justify-content-between align-items-center">
-            <span className="text-muted small">
+            <span className="small" style={{ color: "#cbd5e1" }}>
               Resultados para la búsqueda: <strong className="text-info">"{searchQuery}"</strong>
             </span>
             <span className="badge bg-secondary">{filteredProducts.length} encontrados</span>
@@ -110,9 +128,9 @@ export const HomeView = () => {
           ))
         ) : (
           <div className="col-12 text-center py-5">
-            <i className="bi bi-search fs-1 text-muted mb-3 d-block"></i>
+            <i className="bi bi-search fs-1 mb-3 d-block" style={{ color: "#9ca3af" }}></i>
             <h4 className="text-light">No encontramos productos que coincidan con tu criterio</h4>
-            <p className="text-muted">Intenta cambiar la categoría o limpiar el término de búsqueda.</p>
+            <p style={{ color: "#cbd5e1" }}>Intenta cambiar la categoría o limpiar el término de búsqueda.</p>
             <button
               className="btn btn-nexus-outline mt-2"
               onClick={() => {
@@ -127,3 +145,5 @@ export const HomeView = () => {
     </div>
   );
 };
+
+export default HomeView;
