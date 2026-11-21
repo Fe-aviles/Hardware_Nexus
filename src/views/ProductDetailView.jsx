@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { getProductoById } from "../services/storageService";
+import { productApi } from "../services/apiService";
+import { getProductoById as getFallbackProductoById } from "../services/storageService";
 import { useCart } from "../context/CartContext";
 import { formatPrice } from "../components/ProductCard";
 
@@ -12,9 +13,27 @@ export const ProductDetailView = () => {
   const [quantity, setQuantity] = useState(1);
 
   useEffect(() => {
-    const found = getProductoById(id);
-    setProduct(found);
-    setQuantity(1);
+    const fetchProducto = async () => {
+      try {
+        const p = await productApi.getProductoById(id);
+        if (p) {
+          setProduct({
+            ...p,
+            categoria: p.categoriaNombre || "Hardware",
+            stock_critico: 3
+          });
+          setQuantity(1);
+          return;
+        }
+      } catch (err) {
+        console.warn("Backend no disponible para detalle, usando fallback:", err.message);
+      }
+      const found = getFallbackProductoById(id);
+      setProduct(found);
+      setQuantity(1);
+    };
+
+    fetchProducto();
   }, [id]);
 
   if (!product) {

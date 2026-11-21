@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { getProductos } from "../services/storageService";
+import { productApi } from "../services/apiService";
+import { getProductos as getFallbackProductos } from "../services/storageService";
 import { ProductCard } from "../components/ProductCard";
 import { useCart } from "../context/CartContext";
 
@@ -12,7 +13,25 @@ export const CategoriesView = () => {
   const selectedCategory = searchParams.get("cat") || "Todas";
 
   useEffect(() => {
-    setProductos(getProductos());
+    const fetchProductos = async () => {
+      try {
+        const data = await productApi.getProductos();
+        if (data && data.length > 0) {
+          const adapted = data.map((p) => ({
+            ...p,
+            categoria: p.categoriaNombre || "Hardware",
+            stock_critico: 3
+          }));
+          setProductos(adapted);
+          return;
+        }
+      } catch (err) {
+        console.warn("Backend no disponible en CategoriesView, usando fallback:", err.message);
+      }
+      setProductos(getFallbackProductos());
+    };
+
+    fetchProductos();
   }, []);
 
   const categories = ["Todas", ...new Set(productos.map((p) => p.categoria))];

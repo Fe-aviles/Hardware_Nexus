@@ -6,7 +6,7 @@ import { formatPrice } from "./ProductCard";
 
 export const Navbar = ({ onSearchChange }) => {
   const { totalCount, totalPrice } = useCart();
-  const { currentUser, logout, isAdmin } = useAuth();
+  const { currentUser, logout, isAdmin, isVendedor, isStaff } = useAuth();
   const [searchInput, setSearchInput] = useState("");
   const navigate = useNavigate();
 
@@ -64,10 +64,10 @@ export const Navbar = ({ onSearchChange }) => {
                 <i className="bi bi-envelope me-1"></i> Contacto
               </NavLink>
             </li>
-            {isAdmin && (
+            {isStaff && (
               <li className="nav-item">
                 <NavLink className="nav-link px-2 px-xl-3 text-warning fw-semibold" to="/admin">
-                  <i className="bi bi-speedometer2 me-1"></i> Panel Admin
+                  <i className="bi bi-speedometer2 me-1"></i> {isAdmin ? "Panel Admin" : "Portal Ventas"}
                 </NavLink>
               </li>
             )}
@@ -133,10 +133,10 @@ export const Navbar = ({ onSearchChange }) => {
                       <i className="bi bi-person me-2"></i> Mi Perfil
                     </Link>
                   </li>
-                  {isAdmin && (
+                  {isStaff && (
                     <li>
                       <Link className="dropdown-item text-warning" to="/admin">
-                        <i className="bi bi-shield-lock me-2"></i> Dashboard Admin
+                        <i className="bi bi-shield-lock me-2"></i> {isAdmin ? "Dashboard Admin" : "Gestión de Ventas"}
                       </Link>
                     </li>
                   )}

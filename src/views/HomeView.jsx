@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { getProductos } from "../services/storageService";
+import { productApi } from "../services/apiService";
+import { getProductos as getFallbackProductos } from "../services/storageService";
 import { ProductCard } from "../components/ProductCard";
 import { useCart } from "../context/CartContext";
 
@@ -14,8 +15,26 @@ export const HomeView = () => {
   const searchQuery = searchParams.get("search") || "";
 
   useEffect(() => {
-    const list = getProductos();
-    setProductos(list);
+    const fetchProductos = async () => {
+      try {
+        const data = await productApi.getProductos();
+        if (data && data.length > 0) {
+          // Adaptar formato a frontend si es necesario
+          const adapted = data.map((p) => ({
+            ...p,
+            categoria: p.categoriaNombre || "Hardware",
+            stock_critico: 3
+          }));
+          setProductos(adapted);
+          return;
+        }
+      } catch (err) {
+        console.warn("Backend no disponible aún para HomeView, usando fallback local:", err.message);
+      }
+      setProductos(getFallbackProductos());
+    };
+
+    fetchProductos();
   }, []);
 
   const categories = ["Todas", ...new Set(productos.map((p) => p.categoria))];

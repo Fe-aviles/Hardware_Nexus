@@ -29,7 +29,7 @@ export const LoginView = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage("");
 
@@ -48,11 +48,11 @@ export const LoginView = () => {
     }
 
     setLoading(true);
-    const result = login(correo, password);
+    const result = await login(correo, password);
     setLoading(false);
 
     if (result.success) {
-      if (result.user.rol === "Administrador") {
+      if (result.user.rol === "ADMIN" || result.user.rol === "VENDEDOR" || result.user.rol === "Administrador") {
         navigate(redirectTo === "/" ? "/admin" : redirectTo);
       } else {
         navigate(redirectTo);
@@ -64,8 +64,24 @@ export const LoginView = () => {
 
   const handleFillDemoAdmin = () => {
     setFormData({
-      correo: "admin@hardwarenexus.com",
-      password: "admin"
+      correo: "admin@hardwarenexus.cl",
+      password: "Password123!"
+    });
+    setErrorMessage("");
+  };
+
+  const handleFillDemoVendedor = () => {
+    setFormData({
+      correo: "vendedor@hardwarenexus.cl",
+      password: "Password123!"
+    });
+    setErrorMessage("");
+  };
+
+  const handleFillDemoCliente = () => {
+    setFormData({
+      correo: "cliente@hardwarenexus.cl",
+      password: "Password123!"
     });
     setErrorMessage("");
   };
@@ -166,15 +182,33 @@ export const LoginView = () => {
                 )}
               </button>
 
-              {/* Botón Demostración Admin */}
-              <button
-                type="button"
-                className="btn btn-outline-warning w-100 btn-sm mb-4"
-                onClick={handleFillDemoAdmin}
-                data-testid="btn-demo-admin"
-              >
-                <i className="bi bi-shield-check me-1"></i> Rellenar con Credenciales Admin Demo
-              </button>
+              {/* Botones Demostración de Roles para Evaluación EV3 */}
+              <div className="d-flex flex-column gap-2 mb-4">
+                <button
+                  type="button"
+                  className="btn btn-outline-warning w-100 btn-sm"
+                  onClick={handleFillDemoAdmin}
+                  data-testid="btn-demo-admin"
+                >
+                  <i className="bi bi-shield-lock me-1"></i> Demo: Administrador (admin@hardwarenexus.cl)
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-outline-info w-100 btn-sm"
+                  onClick={handleFillDemoVendedor}
+                  data-testid="btn-demo-vendedor"
+                >
+                  <i className="bi bi-person-badge me-1"></i> Demo: Vendedor (vendedor@hardwarenexus.cl)
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-outline-success w-100 btn-sm"
+                  onClick={handleFillDemoCliente}
+                  data-testid="btn-demo-cliente"
+                >
+                  <i className="bi bi-person me-1"></i> Demo: Cliente (cliente@hardwarenexus.cl)
+                </button>
+              </div>
             </form>
 
             {/* Enlace a Registro */}

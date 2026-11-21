@@ -44,7 +44,7 @@ export const RegisterView = () => {
     if (errorMessage) setErrorMessage("");
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage("");
     setSuccessMessage("");
@@ -84,7 +84,7 @@ export const RegisterView = () => {
     }
 
     setLoading(true);
-    const result = register({
+    const result = await register({
       run: run.trim(),
       nombre: nombre.trim(),
       apellidos: apellidos.trim(),

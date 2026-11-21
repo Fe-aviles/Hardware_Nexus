@@ -1,12 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
-import {
-  getSesionActual,
-  setSesionActual,
-  clearSesionActual,
-  getUsuarios,
-  saveUsuario,
-  updateUsuario
-} from "../services/storageService";
+import { authApi } from "../services/apiService";
 
 const AuthContext = createContext();
 
@@ -22,73 +15,116 @@ export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Inicializar sesión desde el token almacenado y validar contra el backend
   useEffect(() => {
-    const sesion = getSesionActual();
-    if (sesion) {
-      setCurrentUser(sesion);
-    }
-    setLoading(false);
-  }, []);
+    const initializeAuth = async () => {
+      const token = localStorage.getItem("token");
+      const savedUser = localStorage.getItem("hardware_nexus_session");
 
-  const login = (correo, password) => {
-    const usuarios = getUsuarios();
-    const user = usuarios.find(
-      (u) => u.correo.toLowerCase() === correo.trim().toLowerCase() && u.password === password
-    );
-
-    if (user) {
-      const sanitized = { ...user };
-      delete sanitized.password;
-      setCurrentUser(sanitized);
-      setSesionActual(sanitized);
-      return { success: true, user: sanitized };
-    }
-    return { success: false, message: "Correo o contraseña incorrectos" };
-  };
-
-  const register = (datosUsuario) => {
-    const usuarios = getUsuarios();
-    const existe = usuarios.some((u) => u.correo.toLowerCase() === datosUsuario.correo.trim().toLowerCase());
-    if (existe) {
-      return { success: false, message: "El correo electrónico ya está registrado." };
-    }
-
-    const nuevoUsuario = {
-      id: `usr-${Date.now()}`,
-      rol: "Cliente",
-      ...datosUsuario
+      if (token && savedUser) {
+        try {
+          const parsedUser = JSON.parse(savedUser);
+          setCurrentUser(parsedUser);
+          const perfil = await authApi.getPerfil();
+          if (perfil) {
+            const updatedUser = {
+              ...parsedUser,
+              nombre: perfil.nombre,
+              apellidos: perfil.apellido,
+              correo: perfil.email,
+              rol: perfil.rol
+            };
+            setCurrentUser(updatedUser);
+            localStorage.setItem("hardware_nexus_session", JSON.stringify(updatedUser));
+          }
+        } catch (error) {
+          console.warn("Sesión expirada o token inválido:", error);
+          logout();
+        }
+      }
+      setLoading(false);
     };
 
-    saveUsuario(nuevoUsuario);
-    const sanitized = { ...nuevoUsuario };
-    delete sanitized.password;
-    setCurrentUser(sanitized);
-    setSesionActual(sanitized);
-    return { success: true, user: sanitized };
+    initializeAuth();
+  }, []);
+
+  const login = async (correo, password) => {
+    try {
+      const data = await authApi.login(correo.trim(), password);
+      // Data contiene: { token, tipoToken, id, nombre, apellido, email, rol }
+      localStorage.setItem("token", data.token);
+
+      const userSession = {
+        id: data.id,
+        nombre: data.nombre,
+        apellidos: data.apellido,
+        correo: data.email,
+        rol: data.rol // ADMIN, VENDEDOR, CLIENTE
+      };
+
+      setCurrentUser(userSession);
+      localStorage.setItem("hardware_nexus_session", JSON.stringify(userSession));
+      return { success: true, user: userSession };
+    } catch (error) {
+      return { success: false, message: error.message || "Credenciales incorrectas" };
+    }
+  };
+
+  const register = async (datosUsuario) => {
+    try {
+      const payload = {
+        nombre: datosUsuario.nombre,
+        apellido: datosUsuario.apellidos || datosUsuario.apellido || "Nexus",
+        email: datosUsuario.correo || datosUsuario.email,
+        password: datosUsuario.password,
+        telefono: datosUsuario.telefono || datosUsuario.telefono_contacto || "",
+        direccion: datosUsuario.direccion || "",
+        rol: datosUsuario.rol || "CLIENTE"
+      };
+
+      const data = await authApi.register(payload);
+      localStorage.setItem("token", data.token);
+
+      const userSession = {
+        id: data.id,
+        nombre: data.nombre,
+        apellidos: data.apellido,
+        correo: data.email,
+        rol: data.rol
+      };
+
+      setCurrentUser(userSession);
+      localStorage.setItem("hardware_nexus_session", JSON.stringify(userSession));
+      return { success: true, user: userSession };
+    } catch (error) {
+      return { success: false, message: error.message || "Error al registrar usuario" };
+    }
   };
 
   const logout = () => {
     setCurrentUser(null);
-    clearSesionActual();
+    localStorage.removeItem("token");
+    localStorage.removeItem("hardware_nexus_session");
   };
 
-  const updateProfile = (nuevosDatos) => {
-    if (!currentUser) return { success: false, message: "No hay sesión activa" };
-    const actualizado = updateUsuario(currentUser.id, nuevosDatos);
-    if (actualizado) {
-      const sanitized = { ...actualizado };
-      delete sanitized.password;
-      setCurrentUser(sanitized);
-      setSesionActual(sanitized);
-      return { success: true, user: sanitized };
-    }
-    return { success: false, message: "Error al actualizar perfil" };
-  };
-
-  const isAdmin = currentUser?.rol === "Administrador";
+  // Comprobaciones de roles según rúbrica
+  const isAdmin = currentUser?.rol === "ADMIN" || currentUser?.rol === "Administrador";
+  const isVendedor = currentUser?.rol === "VENDEDOR" || currentUser?.rol === "Vendedor";
+  const isStaff = isAdmin || isVendedor; // Puede acceder a vistas administrativas restringidas
 
   return (
-    <AuthContext.Provider value={{ currentUser, login, register, logout, updateProfile, isAdmin, loading }}>
+    <AuthContext.Provider
+      value={{
+        currentUser,
+        login,
+        register,
+        logout,
+        isAdmin,
+        isVendedor,
+        isStaff,
+        loading
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

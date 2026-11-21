@@ -21,10 +21,10 @@ import {
 import { REGIONES, getComunasPorRegion } from "../data/chileData";
 
 export const AdminPortalView = () => {
-  const { currentUser, isAdmin, login } = useAuth();
+  const { currentUser, isAdmin, isVendedor, isStaff, login } = useAuth();
 
-  // Pestaña activa: "dashboard" | "productos" | "categorias" | "ordenes" | "usuarios"
-  const [activeTab, setActiveTab] = useState("dashboard");
+  // Pestaña activa: Vendedor inicia por defecto en "productos"
+  const [activeTab, setActiveTab] = useState(isVendedor && !isAdmin ? "productos" : "dashboard");
 
   // Estados de datos
   const [productos, setProductos] = useState([]);
@@ -349,7 +349,7 @@ export const AdminPortalView = () => {
   });
 
   // ================= PANTALLA DE ACCESO RESTRINGIDO =================
-  if (!isAdmin) {
+  if (!isStaff) {
     return (
       <div className="container py-5" data-testid="admin-access-denied">
         <div className="row justify-content-center">
@@ -358,10 +358,11 @@ export const AdminPortalView = () => {
               <div className="mb-3">
                 <i className="bi bi-shield-x fs-1 text-danger"></i>
               </div>
-              <h3 className="fw-bold text-light mb-2">Acceso Restringido al Panel Administrativo</h3>
+              <h3 className="fw-bold text-light mb-2">Acceso Restringido al Portal de Gestión</h3>
               <p className="text-muted mb-4">
-                Esta sección está reservada exclusivamente para usuarios con rol de{" "}
-                <span className="badge bg-warning text-dark">Administrador</span>.
+                Esta sección está reservada para personal autorizado (
+                <span className="badge bg-warning text-dark me-1">ADMINISTRADOR</span> o{" "}
+                <span className="badge bg-info text-dark">VENDEDOR</span>).
                 {currentUser ? ` Tu rol actual es: ${currentUser.rol}.` : " No has iniciado sesión."}
               </p>
               <div className="d-grid gap-2">
@@ -412,12 +413,15 @@ export const AdminPortalView = () => {
         <div className="d-flex flex-column flex-md-row justify-content-between align-items-start align-items-md-center gap-3">
           <div>
             <div className="d-flex align-items-center gap-2 mb-1">
-              <span className="badge bg-warning text-dark fw-bold px-2 py-1">
-                <i className="bi bi-shield-lock-fill me-1"></i> MODO ADMINISTRADOR
+              <span className={`badge ${isAdmin ? "bg-warning text-dark" : "bg-info text-dark"} fw-bold px-2 py-1`}>
+                <i className={`bi ${isAdmin ? "bi-shield-lock-fill" : "bi-person-badge-fill"} me-1`}></i>
+                {isAdmin ? "MODO ADMINISTRADOR" : "MODO VENDEDOR (SOLO LECTURA)"}
               </span>
-              <span className="text-muted small">Hardware Nexus v2.0</span>
+              <span className="text-muted small">Hardware Nexus EV3</span>
             </div>
-            <h2 className="fw-extrabold text-light mb-0">Panel de Control y Gestión Central</h2>
+            <h2 className="fw-extrabold text-light mb-0">
+              {isAdmin ? "Panel de Control y Gestión Central" : "Portal de Consulta de Ventas y Catálogo"}
+            </h2>
             <p className="text-muted small mb-0 mt-1">
               Sesión activa: <strong className="text-info">{currentUser?.nombre} {currentUser?.apellidos}</strong> ({currentUser?.correo})
             </p>
@@ -437,17 +441,19 @@ export const AdminPortalView = () => {
         </div>
       </div>
 
-      {/* Navegación por Pestañas */}
+      {/* Navegación por Pestañas Adaptativa: Vendedor solo ve Productos y Órdenes */}
       <ul className="nav nav-pills nav-fill bg-dark border border-secondary p-1 rounded-3 mb-4 gap-1">
-        <li className="nav-item">
-          <button
-            className={`nav-link fw-semibold py-2 ${activeTab === "dashboard" ? "active bg-primary" : "text-light"}`}
-            onClick={() => setActiveTab("dashboard")}
-            data-testid="tab-dashboard"
-          >
-            <i className="bi bi-speedometer2 me-2"></i> Dashboard
-          </button>
-        </li>
+        {isAdmin && (
+          <li className="nav-item">
+            <button
+              className={`nav-link fw-semibold py-2 ${activeTab === "dashboard" ? "active bg-primary" : "text-light"}`}
+              onClick={() => setActiveTab("dashboard")}
+              data-testid="tab-dashboard"
+            >
+              <i className="bi bi-speedometer2 me-2"></i> Dashboard
+            </button>
+          </li>
+        )}
         <li className="nav-item">
           <button
             className={`nav-link fw-semibold py-2 ${activeTab === "productos" ? "active bg-primary" : "text-light"}`}
@@ -457,15 +463,17 @@ export const AdminPortalView = () => {
             <i className="bi bi-box-seam me-2"></i> Productos ({productos.length})
           </button>
         </li>
-        <li className="nav-item">
-          <button
-            className={`nav-link fw-semibold py-2 ${activeTab === "categorias" ? "active bg-primary" : "text-light"}`}
-            onClick={() => setActiveTab("categorias")}
-            data-testid="tab-categorias"
-          >
-            <i className="bi bi-tags me-2"></i> Categorías ({categorias.length})
-          </button>
-        </li>
+        {isAdmin && (
+          <li className="nav-item">
+            <button
+              className={`nav-link fw-semibold py-2 ${activeTab === "categorias" ? "active bg-primary" : "text-light"}`}
+              onClick={() => setActiveTab("categorias")}
+              data-testid="tab-categorias"
+            >
+              <i className="bi bi-tags me-2"></i> Categorías ({categorias.length})
+            </button>
+          </li>
+        )}
         <li className="nav-item">
           <button
             className={`nav-link fw-semibold py-2 ${activeTab === "ordenes" ? "active bg-primary" : "text-light"}`}
@@ -475,15 +483,17 @@ export const AdminPortalView = () => {
             <i className="bi bi-receipt me-2"></i> Órdenes de Compra ({ordenes.length})
           </button>
         </li>
-        <li className="nav-item">
-          <button
-            className={`nav-link fw-semibold py-2 ${activeTab === "usuarios" ? "active bg-primary" : "text-light"}`}
-            onClick={() => setActiveTab("usuarios")}
-            data-testid="tab-usuarios"
-          >
-            <i className="bi bi-people me-2"></i> Usuarios ({usuarios.length})
-          </button>
-        </li>
+        {isAdmin && (
+          <li className="nav-item">
+            <button
+              className={`nav-link fw-semibold py-2 ${activeTab === "usuarios" ? "active bg-primary" : "text-light"}`}
+              onClick={() => setActiveTab("usuarios")}
+              data-testid="tab-usuarios"
+            >
+              <i className="bi bi-people me-2"></i> Usuarios ({usuarios.length})
+            </button>
+          </li>
+        )}
       </ul>
 
       {/* ================= CONTENIDO PESTAÑA 1: DASHBOARD ================= */}
@@ -730,15 +740,17 @@ export const AdminPortalView = () => {
                   </label>
                 </div>
               </div>
-              <div className="col-12 col-md-2 text-md-end">
-                <button
-                  className="btn btn-nexus w-100"
-                  onClick={handleOpenCreateProduct}
-                  data-testid="btn-create-product"
-                >
-                  <i className="bi bi-plus-circle me-1"></i> Nuevo Producto
-                </button>
-              </div>
+              {isAdmin && (
+                <div className="col-12 col-md-2 text-md-end">
+                  <button
+                    className="btn btn-nexus w-100"
+                    onClick={handleOpenCreateProduct}
+                    data-testid="btn-create-product"
+                  >
+                    <i className="bi bi-plus-circle me-1"></i> Nuevo Producto
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -836,24 +848,28 @@ export const AdminPortalView = () => {
                               )}
                             </td>
                             <td className="text-end">
-                              <div className="btn-group btn-group-sm">
-                                <button
-                                  className="btn btn-outline-info"
-                                  onClick={() => handleOpenEditProduct(p)}
-                                  data-testid={`btn-edit-prod-${p.id}`}
-                                  title="Editar producto"
-                                >
-                                  <i className="bi bi-pencil-square"></i>
-                                </button>
-                                <button
-                                  className="btn btn-outline-danger"
-                                  onClick={() => handleDeleteProduct(p.id, p.nombre)}
-                                  data-testid={`btn-delete-prod-${p.id}`}
-                                  title="Eliminar producto"
-                                >
-                                  <i className="bi bi-trash"></i>
-                                </button>
-                              </div>
+                              {isAdmin ? (
+                                <div className="btn-group btn-group-sm">
+                                  <button
+                                    className="btn btn-outline-info"
+                                    onClick={() => handleOpenEditProduct(p)}
+                                    data-testid={`btn-edit-prod-${p.id}`}
+                                    title="Editar producto"
+                                  >
+                                    <i className="bi bi-pencil-square"></i>
+                                  </button>
+                                  <button
+                                    className="btn btn-outline-danger"
+                                    onClick={() => handleDeleteProduct(p.id, p.nombre)}
+                                    data-testid={`btn-delete-prod-${p.id}`}
+                                    title="Eliminar producto"
+                                  >
+                                    <i className="bi bi-trash"></i>
+                                  </button>
+                                </div>
+                              ) : (
+                                <span className="badge bg-secondary">Solo Lectura</span>
+                              )}
                             </td>
                           </tr>
                         );

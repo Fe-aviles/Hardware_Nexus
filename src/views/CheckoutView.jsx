@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 import { useAuth } from "../context/AuthContext";
 import { saveOrden, descontarStockDeOrden } from "../services/storageService";
+import { orderApi } from "../services/apiService";
 import { formatPrice } from "../components/ProductCard";
 import { REGIONES, getComunasPorRegion } from "../data/chileData";
 
@@ -122,8 +123,24 @@ export const CheckoutView = () => {
       usuarioId: currentUser?.id || null
     };
 
-    // Simulación de procesamiento de pasarela de pago
-    setTimeout(() => {
+    // Procesamiento de compra (Intenta persistir en Backend Spring Boot v1)
+    const procesarCompra = async () => {
+      try {
+        const itemsPayload = cartItems.map((item) => ({
+          productoId: typeof item.id === "number" ? item.id : 1, // Fallback a 1 si es id string
+          cantidad: item.quantity || 1
+        }));
+        const boletaBackend = await orderApi.crearPedido(itemsPayload);
+        if (boletaBackend) {
+          datosOrden.numeroBoleta = boletaBackend.numeroBoleta;
+          datosOrden.subtotal = boletaBackend.subtotal;
+          datosOrden.iva = boletaBackend.iva;
+          datosOrden.total = boletaBackend.total;
+        }
+      } catch (err) {
+        console.warn("Backend Spring Boot no disponible o sin autenticación en Checkout, fallback local:", err.message);
+      }
+
       setIsProcessing(false);
 
       if (formData.simularFallo) {
@@ -143,7 +160,9 @@ export const CheckoutView = () => {
           state: { orden: datosOrden }
         });
       }
-    }, 800);
+    };
+
+    setTimeout(procesarCompra, 800);
   };
 
   if (cartItems.length === 0) {
